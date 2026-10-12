@@ -9,9 +9,9 @@ flowchart LR
     TEL[Telefon] -. Bluetooth .-> BT[HC-05]
     BT -- "USART2, 9600" --> MCU[STM32F407VG]
     MCU -- "RS, E, D4-D7 (4 bit)" --> LCD[16x2 LCD]
-    subgraph Yazılım
+    subgraph SW[Yazılım]
         RX[RX kesmesi] --> BUF[Nokta ve çizgileri biriktir]
-        BUF -- "& gelince" --> TAB[Mors tablosunda ara]
+        BUF -- "harf sonu gelince" --> TAB[Mors tablosunda ara]
         TAB --> OUT[Harfi LCD'ye yaz]
     end
 ```
