@@ -1,26 +1,30 @@
-# STM32F407 ile Bluetooth üzerinden mors çözücü
+# Bluetooth Morse decoder with a character LCD
 
-> [TECH-OHM](https://tech-ohm.com) açık kaynak projesi
+STM32F407 · HC-05 · HD44780 16x2 LCD
 
-Telefondan Bluetooth ile gönderilen mors işaretlerini (nokta ve çizgi) harfe çevirip 16x2 LCD'ye yazan yazılım. Telefonda iki düğmeli basit bir uygulama ya da herhangi bir Bluetooth seri terminal yeterli.
+![MCU](https://img.shields.io/badge/MCU-STM32F407VG-03234B?logo=stmicroelectronics&logoColor=white) ![IDE](https://img.shields.io/badge/IDE-STM32CubeIDE-2ea44f) ![License](https://img.shields.io/badge/license-MIT-blue) [![TECH-OHM](https://img.shields.io/badge/by-TECH--OHM-FFD400)](https://tech-ohm.com)
 
-## Blok diyagram
+**English** | [Türkçe](README.tr.md) · An open-source project by [TECH-OHM](https://tech-ohm.com)
+
+Firmware that takes Morse symbols (dots and dashes) sent from a phone over Bluetooth, turns them into letters and prints them on a 16x2 LCD. On the phone, a simple two-button app or any Bluetooth serial terminal is enough.
+
+## Block diagram
 
 ```mermaid
 flowchart LR
-    TEL[Telefon] -. Bluetooth .-> BT[HC-05]
+    TEL[Phone] -. Bluetooth .-> BT[HC-05]
     BT -- "USART2, 9600" --> MCU[STM32F407VG]
     MCU -- "RS, E, D4-D7 (4 bit)" --> LCD[16x2 LCD]
-    subgraph SW[Yazılım]
-        RX[RX kesmesi] --> BUF[Nokta ve çizgileri biriktir]
-        BUF -- "harf sonu gelince" --> TAB[Mors tablosunda ara]
-        TAB --> OUT[Harfi LCD'ye yaz]
+    subgraph SW[Firmware]
+        RX[RX interrupt] --> BUF[Collect dots and dashes]
+        BUF -- "end of letter" --> TAB[Look up in Morse table]
+        TAB --> OUT[Print the letter on the LCD]
     end
 ```
 
-## Pinler
+## Pins
 
-| Kart pini | Bağlandığı yer | Açıklama |
+| MCU pin | Connects to | Notes |
 |---|---|---|
 | PA2 | HC-05 RXD | USART2 TX, 9600 |
 | PA3 | HC-05 TXD | USART2 RX |
@@ -31,52 +35,52 @@ flowchart LR
 | PA10 | LCD D6 | |
 | PA4 | LCD D7 | |
 
-LCD'nin RW ucu toprağa bağlı, kontrast için V0 ucuna 10k trimpot gerekir.
+LCD RW is tied to ground. The V0 pin needs a 10k trimmer for contrast.
 
-## Protokol
+## Protocol
 
-Telefondan üç karakter gönderiliyor:
+The phone sends three characters:
 
-| Karakter | Anlamı |
+| Character | Meaning |
 |---|---|
-| `.` | nokta |
-| `-` | çizgi |
-| `&` | harf bitti |
+| `.` | dot |
+| `-` | dash |
+| `&` | end of letter |
 
-Örneğin `SOS` yazmak için gönderilecek dizi:
+To write `SOS`, send:
 
 ```
 ...&---&...&
 ```
 
-Kelime arası boşluk için tek bir boşluk karakteri ve ardından `&` gönder.
+For a space between words, send a single space character followed by `&`.
 
-Gelen baytlar kesme içinde bir tamponda birikiyor. `&` gelince tampon mors tablosunda aranıyor ve bulunan harf ana döngüye bildiriliyor. LCD'ye yazma ana döngüde yapılıyor, çünkü LCD sürücüsü içinde beklemeler var ve bunlar kesme içinde çalıştırılmamalı.
+Incoming bytes collect in a buffer inside the interrupt. When `&` arrives the buffer is looked up in the Morse table and the letter is passed to the main loop. Writing to the LCD happens in the main loop, because the LCD driver contains delays that should not run inside an interrupt.
 
-Tabloda harfler, rakamlar ve yaygın noktalama işaretleri var. Tabloda olmayan bir dizi gelirse ekrana `?` yazılıyor. Ekranın iki satırı dolunca temizlenip baştan başlıyor.
+The table covers letters, digits and common punctuation. An unknown sequence prints `?`. When both lines of the display are full, it clears and starts over.
 
-## LCD sürücüsü
+## LCD driver
 
-`Core/Src/lcd.c` içinde HD44780 için 4 bit modda çalışan kısa bir sürücü var. Pinler `lcd.h` içinde tanımlı.
+`Core/Src/lcd.c` is a short HD44780 driver in 4-bit mode. The pins are defined in `lcd.h`.
 
-## Derleme
+## Build
 
-STM32CubeIDE'de `File > Import > Existing Projects into Workspace` ile klasörü seç.
+In STM32CubeIDE use `File > Import > Existing Projects into Workspace` and select this folder.
 
-## Durum
+## Status
 
-Satır kaydırmayı ekledikten sonra kartta yeniden denemedim.
+I added the line wrapping and have not re-tested on the board since.
 
-## Lisans
+## License
 
-MIT. `Drivers` klasöründeki STM32 HAL ve CMSIS dosyaları kendi lisanslarıyla gelir.
+MIT. The STM32 HAL and CMSIS files under `Drivers` keep their own licenses.
 
-## Yazar
+## Author
 
-Gömülü Sistem Mühendisi M. Eyüb Can, [TECH-OHM](https://tech-ohm.com) kurucusu
+M. Eyüb Can, embedded systems engineer and founder of [TECH-OHM](https://tech-ohm.com)
 
-## TECH-OHM
+## About TECH-OHM
 
-[TECH-OHM](https://tech-ohm.com) elektronik kart ve gömülü yazılım tasarlayan bir mühendislik firması. Fikirden seri üretime kadar tasarım işi alıyor, TECH-OHM Akademi'de 12 aylık gömülü sistem eğitimi ve şirketlere özel danışmanlık veriyor.
+[TECH-OHM](https://tech-ohm.com) designs electronic boards and embedded software, from the first schematic to series production. We also run a 12-month embedded systems training program and consult for engineering teams.
 
-Web: [tech-ohm.com](https://tech-ohm.com) · E-posta: info@tech-ohm.com
+Web: [tech-ohm.com](https://tech-ohm.com) · Email: info@tech-ohm.com
