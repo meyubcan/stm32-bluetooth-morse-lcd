@@ -1,3 +1,4 @@
+/* M. Eyub Can, TECH-OHM (https://tech-ohm.com) */
 #include "lcd.h"
 #include "string.h"
 

@@ -1,5 +1,7 @@
 # STM32F407 ile Bluetooth üzerinden mors çözücü
 
+> [TECH-OHM](https://tech-ohm.com) açık kaynak projesi
+
 Telefondan Bluetooth ile gönderilen mors işaretlerini (nokta ve çizgi) harfe çevirip 16x2 LCD'ye yazan yazılım. Telefonda iki düğmeli basit bir uygulama ya da herhangi bir Bluetooth seri terminal yeterli.
 
 ## Blok diyagram
@@ -71,4 +73,10 @@ MIT. `Drivers` klasöründeki STM32 HAL ve CMSIS dosyaları kendi lisanslarıyla
 
 ## Yazar
 
-Gömülü Sistem Mühendisi M. Eyüb Can, [TECH-OHM](https://tech-ohm.com)
+Gömülü Sistem Mühendisi M. Eyüb Can, [TECH-OHM](https://tech-ohm.com) kurucusu
+
+## TECH-OHM
+
+[TECH-OHM](https://tech-ohm.com) elektronik kart ve gömülü yazılım tasarlayan bir mühendislik firması. Fikirden seri üretime kadar tasarım işi alıyor, TECH-OHM Akademi'de 12 aylık gömülü sistem eğitimi ve şirketlere özel danışmanlık veriyor.
+
+Web: [tech-ohm.com](https://tech-ohm.com) · E-posta: info@tech-ohm.com
