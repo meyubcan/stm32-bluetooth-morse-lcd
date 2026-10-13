@@ -25,14 +25,14 @@
 #include "lcd.h"
 #include "string.h"
 
-char rxData;           // Tek karakter alacağız
-char morsBuffer[100];  // Gelen mors mesajı
+char rxData;           // one character at a time
+char morsBuffer[100];  // dots and dashes of the current letter
 int morsIndex = 0;
 int cursorPos = 0;
 volatile int yeniHarfVar = 0;
 char gelenHarf = '?';
 
-// Mors kodu ile harf eşleştirmesi için yapı
+// Maps a Morse sequence to a character
 typedef struct {
     const char* morse;
     const char  letter;
@@ -41,7 +41,7 @@ typedef struct {
 MorseMap morseTable[] = {
 
 
-    // harfler >>>>>>>>
+    // letters
 	{".-",   'A'}, {"-...", 'B'}, {"-.-.", 'C'},{"-..",'D'},
     {".",    'E'}, {"..-.", 'F'}, {"--.",  'G'}, {"....", 'H'},
     {"..",   'I'}, {".---", 'J'}, {"-.-",  'K'}, {".-..", 'L'},
@@ -50,18 +50,18 @@ MorseMap morseTable[] = {
     {"..-",  'U'}, {"...-", 'V'}, {".--",  'W'}, {"-..-", 'X'},
     {"-.--", 'Y'}, {"--..", 'Z'},
 
-	// sayılar >>>>>>>
+	// digits
 	{"-----", '0'},{".----", '1'},{"..---", '2'},{"...--", '3'},
 	{"....-", '4'},{".....", '5'},{"-....", '6'},
 	{"--...", '7'}, {"---..", '8'},{"----.", '9'},
 
-	//noktalama işaretleri>>>
+	//punctuation
 	{".-.-.-", '.'},{"--..--", ','},{"..--..", '?'},
 	{".----.", '\''},{"-.-.--", '!'},{"-..-.",  '/'},{"-.--.",  '('},
 	{"-.--.-", ')'},{".-...",  '&'},{"---...", ':'},{"-.-.-.", ';'},
 	{"-...-",  '='},{".-.-.",  '+'},{"-....-", '-'},{"..--.-", '_'},
 	{".-..-.", '"'},{"...-..-", '$'},{".--.-.", '@'},{"------.",'<'},
-	// bosluk
+	// space
 	{" ", ' '}
 
 
@@ -115,7 +115,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
         if (rxData == '&') {
             morsBuffer[morsIndex] = '\0';
             gelenHarf = morseToChar(morsBuffer);
-            yeniHarfVar = 1;  // ana döngü LCD işlemi yapacak
+            yeniHarfVar = 1;  // the main loop does the LCD write
             morsIndex = 0;
         } else {
             if (morsIndex < sizeof(morsBuffer) - 1)
@@ -183,7 +183,7 @@ int main(void)
     {
       char str[2] = {gelenHarf, '\0'};
 
-      /* 16x2 ekran dolunca temizle ve bastan yaz */
+      /* 16x2 display is full: clear it and start over */
       if (cursorPos >= 32) {
         LCD_Clear();
         cursorPos = 0;

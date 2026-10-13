@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-// LCD pin tanımlamaları
+// LCD pin definitions
 #define LCD_RS_GPIO_Port GPIOA
 #define LCD_RS_Pin GPIO_PIN_6
 
@@ -23,7 +23,7 @@
 #define LCD_D7_GPIO_Port GPIOA
 #define LCD_D7_Pin GPIO_PIN_4
 
-// Fonksiyon prototipleri
+// Function prototypes
 void LCD_Init(void);
 void LCD_SendCommand(uint8_t cmd);
 void LCD_SendData(uint8_t data);
